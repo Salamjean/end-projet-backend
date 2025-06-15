@@ -58,4 +58,12 @@ const reservationSchema = new mongoose.Schema({
     }
 });
 
+// Vérification que la date de fin est après la date de début
+reservationSchema.pre('save', function(next) {
+    if (this.startDate >= this.endDate) {
+        next(new Error('La date de fin doit être après la date de début'));
+    }
+    next();
+});
+
 module.exports = mongoose.model('Reservation', reservationSchema); 

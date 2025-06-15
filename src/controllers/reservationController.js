@@ -47,6 +47,24 @@ const createReservation = async (req, res) => {
             return res.status(404).json({ message: 'Parking non trouvé' });
         }
 
+        // Vérifier si le parking est disponible pour ces dates
+        const existingReservation = await Reservation.findOne({
+            parking: parkingId,
+            status: { $in: ['pending', 'confirmed'] },
+            $or: [
+                {
+                    startDate: { $lte: new Date(endDate) },
+                    endDate: { $gte: new Date(startDate) }
+                }
+            ]
+        });
+
+        if (existingReservation) {
+            return res.status(400).json({ 
+                message: 'Le parking n\'est pas disponible pour ces dates' 
+            });
+        }
+
         // Créer la réservation
         const reservation = new Reservation({
             name: `${firstName} ${lastName}`,

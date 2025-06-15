@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const connectDB = require('./config/db');
 const parkingRoutes = require('./routes/parkingRoutes');
 
@@ -14,11 +15,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Servir les fichiers statiques du dossier uploads
+const uploadsPath = path.join(__dirname, '..', 'public', 'uploads');
+console.log('Chemin des uploads:', uploadsPath);
+app.use('/uploads', express.static(uploadsPath));
+
 // Middleware de logging
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
+  if (req.url.startsWith('/uploads/')) {
+    console.log('Tentative d\'accès à une image:', req.url);
+  }
   next();
 });
 
