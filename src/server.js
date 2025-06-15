@@ -11,6 +11,7 @@ const parkingRoutes = require('./routes/parkingRoutes');
 const reservationRoutes = require('./routes/reservationRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const healthRoutes = require('./routes/health');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 // Création de l'application Express
 const app = express();
@@ -51,6 +52,7 @@ app.use('/api/parkings', parkingRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/health', healthRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Route de base
 app.get('/', (req, res) => {

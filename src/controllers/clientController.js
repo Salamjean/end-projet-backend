@@ -167,24 +167,41 @@ const updateClient = async (req, res) => {
 // Supprimer un client
 const deleteClient = async (req, res) => {
     try {
+        console.log(`Tentative de suppression du client ID: ${req.params.id}`);
+        
         const client = await Client.findById(req.params.id);
-
+        
         if (!client) {
-            return res.status(404).json({ message: 'Client non trouvé' });
+            console.log('Client non trouvé');
+            return res.status(404).json({ 
+                success: false,
+                message: 'Client non trouvé' 
+            });
         }
 
-        // Supprimer toutes les réservations associées
-        await Reservation.deleteMany({ _id: { $in: client.reservations } });
+        // Suppression des réservations associées (si elles existent)
+        if (client.reservations && client.reservations.length > 0) {
+            console.log(`Suppression des ${client.reservations.length} réservations associées`);
+            await Reservation.deleteMany({ _id: { $in: client.reservations } });
+        }
 
-        // Supprimer le client
-        await client.remove();
+        // Suppression du client
+        console.log('Suppression du client');
+        await Client.deleteOne({ _id: req.params.id });
 
-        res.json({ message: 'Client et ses réservations supprimés avec succès' });
+        console.log('Suppression réussie');
+        res.json({ 
+            success: true,
+            message: 'Client et ses réservations supprimés avec succès' 
+        });
+        
     } catch (error) {
-        console.error('Erreur lors de la suppression du client:', error);
+        console.error('Erreur détaillée:', error);
         res.status(500).json({ 
-            message: 'Erreur lors de la suppression du client',
-            error: error.message 
+            success: false,
+            message: 'Erreur serveur lors de la suppression',
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 };
